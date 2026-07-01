@@ -17,9 +17,18 @@ class OpcUaNodes(BaseModel):
     current_state: str
 
 
+class OpcUaSecurityConfig(BaseModel):
+    enabled: bool = False
+    policy: str | None = None
+    mode: str | None = None
+    certificate_path: str | None = None
+    private_key_path: str | None = None
+
+
 class OpcUaConfig(BaseModel):
     endpoint: str
     nodes: OpcUaNodes
+    security: OpcUaSecurityConfig = Field(default_factory=OpcUaSecurityConfig)
 
 
 class MachineConfig(BaseModel):
