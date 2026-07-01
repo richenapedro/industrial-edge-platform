@@ -1,4 +1,5 @@
 gateway:
+  poll_interval_seconds: 5
   mqtt:
     host: "localhost"
     port: 1883
@@ -19,7 +20,7 @@ machines:
   - id: "tnc640-001"
     name: "TNC640 Test Machine"
     type: "TNC640"
-    enabled: false
+    enabled: true
     opcua:
       endpoint: "opc.tcp://192.168.214.242:4840"
       nodes:
