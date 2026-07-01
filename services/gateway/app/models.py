@@ -10,6 +10,7 @@ class MqttConfig(BaseModel):
 
 
 class GatewayConfig(BaseModel):
+    poll_interval_seconds: int = 5
     mqtt: MqttConfig
 
 
