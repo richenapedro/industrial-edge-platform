@@ -13,10 +13,10 @@ class MqttPublisher:
 
         payload = {
             "machine_id": machine.id,
-            "state": machine.current_state,
-            "connected": machine.connected,
-            "last_update": machine.last_update.isoformat()
-            if machine.last_update
+            "state": machine.runtime.state.current,
+            "connected": machine.runtime.connection.connected,
+            "last_update": machine.runtime.state.last_update.isoformat()
+            if machine.runtime.state.last_update
             else None,
         }
 

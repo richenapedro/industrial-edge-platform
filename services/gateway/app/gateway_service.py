@@ -25,18 +25,19 @@ class GatewayService:
         await self.opcua_client.connect()
 
         try:
-            self.machine.mark_connected()
+            self.machine.runtime.connection.mark_connected()
             logger.info("Machine %s marked as connected", self.machine.id)
 
             values = await self.opcua_client.read_all_configured_nodes()
             logger.info("Read values from machine %s: %s", self.machine.id, values)
 
             if "current_state" in values:
-                self.machine.update_state(str(values["current_state"]))
+                self._update_machine_runtime(values)
+
                 logger.info(
                     "Machine %s state updated to %s",
                     self.machine.id,
-                    self.machine.current_state,
+                    self.machine.runtime.state.current,
                 )
 
             await self.mqtt_publisher.publish_machine_state(self.machine)
@@ -63,3 +64,31 @@ class GatewayService:
                 )
 
             await asyncio.sleep(poll_interval_seconds)
+
+    def _update_machine_runtime(self, values: dict[str, object]) -> None:
+        if "current_state" in values:
+            self.machine.runtime.state.update(str(values["current_state"]))
+
+        if "current_program" in values:
+            self.machine.runtime.program.update(str(values["current_program"]))
+
+        if "current_tool" in values:
+            self.machine.runtime.tool.update(str(values["current_tool"]))
+
+        if "spindle_speed" in values:
+            spindle_speed = values["spindle_speed"]
+
+            if isinstance(spindle_speed, int | float | str):
+                self.machine.runtime.spindle.update_speed(float(spindle_speed))
+            else:
+                logger.warning(
+                    "Invalid spindle_speed value for machine %s: %s",
+                    self.machine.id,
+                    spindle_speed,
+                )
+
+        if "active_alarm" in values:
+            alarm = values["active_alarm"]
+            self.machine.runtime.alarm.update_active_alarm(
+                str(alarm) if alarm is not None else None
+            )
